@@ -24,6 +24,7 @@ async function run() {
     try {
         // await client.connect();
         const eventCollection = client.db('event-hub').collection('events')
+        const registrationCollection = client.db('event-hub').collection('registration')
 
         
 
@@ -50,7 +51,54 @@ async function run() {
             const result = await eventCollection.find().limit(3).toArray()
             res.send(result)
         })
-    //   comment 
+
+
+         //getting all data marathon 
+        app.get('/event/list',async (req, res) => {
+            const email = req.query.email;
+            const sortOrder = req.query.sort === 'asc' ? 1 : -1;
+            const query = {};
+            if (email) {
+                query.user_email = email;
+            }
+            const result = await eventCollection.find(query)
+                .sort({ createdAt: sortOrder })
+                .toArray();
+            res.send(result);
+        });
+
+        // ----------------------
+         app.post('/registration', async (req, res) => {
+            const data = req.body;
+            console.log(data)
+            const result = await registrationCollection.insertOne(data);
+            res.send(data)
+        })
+
+
+        // get my registration on event 
+
+        app.get('/my-registration',async (req, res) => {
+            const email = req.query.email;
+            const query = {};
+            if (email) {
+                query.email = email;
+            }
+            const result = await registrationCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        // delete registered data 
+         app.get('/registration/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await registrationCollection.deleteOne(query)
+            res.send(result)
+        })
+
+
+
+    
 
 
         // Send a ping to confirm a successful connection
