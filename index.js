@@ -25,13 +25,14 @@ async function run() {
         // await client.connect();
         const eventCollection = client.db('event-hub').collection('events')
         const registrationCollection = client.db('event-hub').collection('registration')
+        const reviewCollection = client.db('event-hub').collection('review')
 
         
 
-        // adding marathons data 
+        // adding event data 
         app.post('/event', async (req, res) => {
             const data = req.body;
-            console.log(data)
+            // console.log(data)
             const result = await eventCollection.insertOne(data)
             res.send(result)
         })
@@ -46,7 +47,7 @@ async function run() {
         })
 
 
-        //  getting all marathons data with  limit 
+        //  getting all events data with  limit 
         app.get('/events', async (req, res) => {
             const result = await eventCollection.find().limit(3).toArray()
             res.send(result)
@@ -70,7 +71,7 @@ async function run() {
         // ----------------------
          app.post('/registration', async (req, res) => {
             const data = req.body;
-            console.log(data)
+            // console.log(data)
             const result = await registrationCollection.insertOne(data);
             res.send(data)
         })
@@ -89,12 +90,32 @@ async function run() {
         })
 
         // delete registered data 
-         app.get('/registration/:id', async (req, res) => {
+         app.delete('/registration/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
+            console.log(query)
             const result = await registrationCollection.deleteOne(query)
             res.send(result)
         })
+
+
+        //review collection 
+        app.post('/review', async (req, res) => {
+            const data = req.body;
+            // console.log(data)
+            const result = await reviewCollection.insertOne(data);
+            res.send(data)
+        })
+
+          //  getting all review  data with  limit 
+        app.get('/review', async (req, res) => {
+            const result = await reviewCollection.find().toArray()
+            res.send(result)
+        })
+
+
+
+        
 
 
 
