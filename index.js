@@ -56,10 +56,16 @@ async function run() {
 
         //search funtionality for event
         app.get("/find", async (req, res) => {
-            const search = req.query.search;
-            const query = search
-                ? { name: { $regex: search, $options: "i" } }
-                : {};
+            const search = req.query.search?.trim();
+
+            // If no search text, return empty result
+            if (!search) {
+                return res.send([]);
+            }
+
+            const query = {
+                name: { $regex: search, $options: "i" }
+            };
 
             const result = await eventCollection.find(query).toArray();
             res.send(result);
