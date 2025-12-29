@@ -27,7 +27,7 @@ async function run() {
         const registrationCollection = client.db('event-hub').collection('registration')
         const reviewCollection = client.db('event-hub').collection('review')
 
-        
+
 
         // adding event data 
         app.post('/event', async (req, res) => {
@@ -38,7 +38,7 @@ async function run() {
         })
 
         // marathons Data with ID 
-        app.get('/details/:id',async (req, res) => {
+        app.get('/details/:id', async (req, res) => {
             const id = req.params.id;
             // console.log(id)
             const query = { _id: new ObjectId(id) }
@@ -54,8 +54,21 @@ async function run() {
         })
 
 
-         //getting all data marathon 
-        app.get('/event/list',async (req, res) => {
+        //search funtionality for event
+        app.get("/find", async (req, res) => {
+            const search = req.query.search;
+            const query = search
+                ? { name: { $regex: search, $options: "i" } }
+                : {};
+
+            const result = await eventCollection.find(query).toArray();
+            res.send(result);
+        });
+
+
+
+        //getting all data marathon 
+        app.get('/event/list', async (req, res) => {
             const email = req.query.email;
             const sortOrder = req.query.sort === 'asc' ? 1 : -1;
             const query = {};
@@ -69,7 +82,7 @@ async function run() {
         });
 
         // ----------------------
-         app.post('/registration', async (req, res) => {
+        app.post('/registration', async (req, res) => {
             const data = req.body;
             // console.log(data)
             const result = await registrationCollection.insertOne(data);
@@ -79,7 +92,7 @@ async function run() {
 
         // get my registration on event 
 
-        app.get('/my-registration',async (req, res) => {
+        app.get('/my-registration', async (req, res) => {
             const email = req.query.email;
             const query = {};
             if (email) {
@@ -90,7 +103,7 @@ async function run() {
         })
 
         // delete registered data 
-         app.delete('/registration/:id', async (req, res) => {
+        app.delete('/registration/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             console.log(query)
@@ -107,7 +120,7 @@ async function run() {
             res.send(data)
         })
 
-          //  getting all review  data with  limit 
+        //  getting all review  data with  limit 
         app.get('/review', async (req, res) => {
             const result = await reviewCollection.find().toArray()
             res.send(result)
@@ -115,18 +128,18 @@ async function run() {
 
 
 
-        
 
 
 
-    
+
+
 
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     }
-    finally { 
+    finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
     }
